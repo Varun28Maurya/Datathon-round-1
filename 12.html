@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Finance Tracker</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #e8f4fc;
+            color: #333;
+            line-height: 1.6;
+            display: flex;
+            min-height: 100vh;
+            flex-direction: column;
+        }
+
+        /* Sidebar Styles */
+        .sidebar {
+            width: 250px;
+            background: #0077b6;
+            padding-top: 1.5rem;
+            color: white;
+            height: 100vh;
+            position: fixed;
+            left: 0;
+            top: 0;
+        }
+
+        .sidebar h1 {
+            text-align: center;
+            font-size: 2rem;
+            padding-bottom: 1.5rem;
+        }
+
+        .sidebar a {
+            display: block;
+            color: white;
+            padding: 1rem 2rem;
+            text-decoration: none;
+            transition: background 0.3s;
+        }
+
+        .sidebar a:hover {
+            background-color: #00b4d8;
+            transform: translateX(5px);
+        }
+
+        .sidebar a.active {
+            background-color: #00b4d8;
+            font-weight: bold;
+        }
+
+        /* Main Content Styles */
+        .main-content {
+            margin-left: 250px;
+            padding: 2rem;
+            width: calc(100% - 250px);
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            padding-bottom: 100px;
+            overflow: auto;
+        }
+
+        header {
+            background: linear-gradient(90deg, #0077b6, #00b4d8);
+            color: white;
+            padding: 1.5rem;
+            text-align: center;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+            width: 100%;
+        }
+
+        header h1 {
+            font-size: 3rem;
+        }
+
+        header p {
+            font-size: 1.2rem;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 1.5rem;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+        }
+
+        .section {
+            margin-bottom: 2.5rem;
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            width: 100%;
+        }
+
+        .section h2 {
+            margin-bottom: 1rem;
+            color: #0077b6;
+            font-size: 1.8rem;
+        }
+
+        .form-section input, .form-section select, .form-section textarea {
+            width: 100%;
+            padding: 0.8rem;
+            margin-bottom: 1rem;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        .form-section button {
+            background: #0077b6;
+            color: white;
+            padding: 0.8rem 2rem;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .form-section button:hover {
+            background: #00b4d8;
+        }
+
+        #expense-history {
+            margin-top: 2rem;
+        }
+
+        .expense-item {
+            background: #f0faff;
+            padding: 1rem;
+            border-radius: 10px;
+            margin-bottom: 1rem;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .chart-section {
+            margin-top: 2rem;
+            text-align: center;
+        }
+
+        canvas {
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        .message-box {
+            margin-top: 2rem;
+            padding: 1.5rem;
+            background: #eaf7e0;
+            border-left: 5px solid #28a745;
+            border-radius: 10px;
+            font-size: 1rem;
+        }
+
+        footer {
+            text-align: center;
+            padding: 1.5rem;
+            background: #0077b6;
+            color: white;
+            margin-top: 2.5rem;
+            position: relative;
+            bottom: 0;
+            width: 100%;
+        }
+
+        /* Login/Signup Styles */
+        .login-container, .signup-container {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            margin-top: 50px;
+        }
+
+        .login-container input, .signup-container input {
+            width: 250px;
+            padding: 10px;
+            margin: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        .login-container button, .signup-container button {
+            width: 250px;
+            padding: 10px;
+            margin-top: 10px;
+            background-color: #0077b6;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .login-container button:hover, .signup-container button:hover {
+            background-color: #00b4d8;
+        }
+
+        .auth-link {
+            margin-top: 10px;
+            color: #0077b6;
+            cursor: pointer;
+        }
+
+        /* Budget Form Styles */
+        .budget-container {
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            margin-top: 50px;
+        }
+
+        .budget-container input {
+            width: 250px;
+            padding: 10px;
+            margin: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        .budget-container button {
+            width: 250px;
+            padding: 10px;
+            margin-top: 10px;
+            background-color: #0077b6;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .budget-container button:hover {
+            background-color: #00b4d8;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Login/Signup Section -->
+    <div class="login-container" id="login-form">
+        <h2>Login</h2>
+        <input type="email" id="login-email" placeholder="Email" required>
+        <input type="password" id="login-password" placeholder="Password" required>
+        <button onclick="login()">Login</button>
+        <span class="auth-link" onclick="showSignupForm()">Don't have an account? Sign Up</span>
+    </div>
+
+    <div class="signup-container" id="signup-form" style="display:none;">
+        <h2>Sign Up</h2>
+        <input type="email" id="signup-email" placeholder="Email" required>
+        <input type="password" id="signup-password" placeholder="Password" required>
+        <button onclick="signup()">Sign Up</button>
+        <span class="auth-link" onclick="showLoginForm()">Already have an account? Login</span>
+    </div>
+
+    <!-- Budget Form -->
+    <div class="budget-container" id="budget-form">
+        <h2>Set Your Budget</h2>
+        <input type="number" id="budget-amount" placeholder="Enter your budget" required>
+        <button onclick="setBudget()">Set Budget</button>
+    </div>
+
+    <!-- Finance Tracker Section (Hidden until logged in) -->
+    <div class="sidebar" id="finance-tracker" style="display:none;">
+        <h1>Finance Tracker</h1>
+        <a href="#family" class="active">Family</a>
+        <a href="#friends">Friends</a>
+        <a href="#workspace">Workspace</a>
+        <a href="#track">Track Payments</a>
+        <a href="#testimonial">Testimonials</a>
+        <a href="#form">Expense Form</a>
+    </div>
+
+    <div class="main-content" id="main-content" style="display:none;">
+        <header>
+            <h1>Welcome to Finance Tracker</h1>
+            <p>Track your expenses and save money effectively!</p>
+        </header>
+
+        <div class="container">
+            <section id="form" class="section form-section">
+                <h2>Submit Expense Form</h2>
+                <form id="expense-form">
+                    <input type="text" id="expense-name" placeholder="Expense Name" required>
+                    <input type="number" id="expense-amount" placeholder="Amount" required>
+                    <select id="transaction-type" required>
+                        <option value="">Select Type</option>
+                        <option value="expense">Expense</option>
+                        <option value="saving">Saving</option>
+                        <option value="borrowing">Borrowing</option>
+                    </select>
+                    <textarea id="expense-description" placeholder="Description" required></textarea>
+                    <button type="submit">Submit</button>
+                </form>
+                <div id="expense-history">
+                    <h2>Transaction History</h2>
+                    <div id="expense-list"></div>
+                </div>
+            </section>
+
+            <section class="chart-section">
+                <h2>Spending Overview</h2>
+                <canvas id="finance-chart"></canvas>
+            </section>
+
+            <div class="message-box" id="remaining-budget-message">
+                Your remaining budget will be displayed here.
+            </div>
+        </div>
+
+        <footer>
+            <p>&copy; 2025 Finance Tracker, All Rights Reserved.</p>
+        </footer>
+    </div>
+
+    <!-- Load Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        let users = [];
+        let currentUser = null;
+        let userBudget = 0;
+        let transactions = [];
+
+        function showLoginForm() {
+            document.getElementById("login-form").style.display = "flex";
+            document.getElementById("signup-form").style.display = "none";
+        }
+
+        function showSignupForm() {
+            document.getElementById("login-form").style.display = "none";
+            document.getElementById("signup-form").style.display = "flex";
+        }
+
+        function signup() {
+            const email = document.getElementById("signup-email").value;
+            const password = document.getElementById("signup-password").value;
+            const user = { email, password, budget: 0, transactions: [] };
+            users.push(user);
+            alert("Account created successfully! Please login.");
+            showLoginForm();
+        }
+
+        function login() {
+            const email = document.getElementById("login-email").value;
+            const password = document.getElementById("login-password").value;
+            const user = users.find(u => u.email === email && u.password === password);
+            if (user) {
+                currentUser = user;
+                transactions = user.transactions;
+                showBudgetForm();
+            } else {
+                alert("Invalid credentials, please try again.");
+            }
+        }
+
+        function showBudgetForm() {
+            document.getElementById("budget-form").style.display = "flex";
+            document.getElementById("login-form").style.display = "none";
+            document.getElementById("signup-form").style.display = "none";
+        }
+
+        function setBudget() {
+            const budgetAmount = parseFloat(document.getElementById("budget-amount").value);
+            if (budgetAmount > 0) {
+                userBudget = budgetAmount;
+                currentUser.budget = budgetAmount;
+                showFinanceTracker();
+            } else {
+                alert("Please enter a valid budget.");
+            }
+        }
+
+        function showFinanceTracker() {
+            document.getElementById("finance-tracker").style.display = "block";
+            document.getElementById("main-content").style.display = "flex";
+            document.getElementById("budget-form").style.display = "none";
+            updateTransactionHistory();
+            updateBudgetMessage();
+            updateChart();
+        }
+
+        function updateTransactionHistory() {
+            const expenseList = document.getElementById("expense-list");
+            expenseList.innerHTML = "";
+            transactions.forEach(transaction => {
+                const expenseItem = document.createElement("div");
+                expenseItem.classList.add("expense-item");
+                expenseItem.innerHTML = `
+                    <strong>${transaction.name}</strong> 
+                    <br> 
+                    Amount: ₹${transaction.amount} 
+                    <br> 
+                    Type: ${transaction.type} 
+                    <br> 
+                    Description: ${transaction.description}
+                    <br>
+                    Date: ${transaction.date}
+                `;
+                expenseList.appendChild(expenseItem);
+            });
+        }
+
+        function updateBudgetMessage() {
+            const remainingBudget = userBudget - transactions.reduce((sum, transaction) => sum + transaction.amount, 0);
+            const budgetMessage = document.getElementById("remaining-budget-message");
+            budgetMessage.innerHTML = `
+                Your remaining budget is ₹${remainingBudget}. 
+                ${remainingBudget < 0 ? "You've exceeded your budget!" : ""}
+            `;
+        }
+
+        function updateChart() {
+            const ctx = document.getElementById('finance-chart').getContext('2d');
+            const categories = ['Expense', 'Saving', 'Borrowing'];
+            const amounts = categories.map(category => transactions.filter(t => t.type === category).reduce((sum, transaction) => sum + transaction.amount, 0));
+
+            new Chart(ctx, {
+                type: 'pie',
+                data: {
+                    labels: categories,
+                    datasets: [{
+                        label: 'Expenses Overview',
+                        data: amounts,
+                        backgroundColor: ['#ff5c5c', '#00b4d8', '#32cd32'],
+                        borderColor: '#fff',
+                        borderWidth: 1
+                    }]
+                },
+            });
+        }
+
+        document.getElementById('expense-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const expenseName = document.getElementById("expense-name").value;
+            const expenseAmount = parseFloat(document.getElementById("expense-amount").value);
+            const transactionType = document.getElementById("transaction-type").value;
+            const expenseDescription = document.getElementById("expense-description").value;
+            const transactionDate = new Date().toLocaleString();
+
+            const transaction = { name: expenseName, amount: expenseAmount, type: transactionType, description: expenseDescription, date: transactionDate };
+            transactions.push(transaction);
+            currentUser.transactions = transactions;
+            userBudget -= expenseAmount;
+            updateTransactionHistory();
+            updateBudgetMessage();
+            updateChart();
+
+            // Clear the form fields
+            document.getElementById("expense-form").reset();
+        });
+    </script>
+</body>
+</html>
